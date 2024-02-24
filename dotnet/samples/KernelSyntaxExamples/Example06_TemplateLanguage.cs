@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Azure.Identity;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Skills.Core;
 using Microsoft.SemanticKernel.TemplateEngine.Prompt;
@@ -18,20 +19,24 @@ public static class Example06_TemplateLanguage
     {
         Console.WriteLine("======== TemplateLanguage ========");
 
-        string openAIModelId = TestConfiguration.OpenAI.ChatModelId;
-        string openAIApiKey = TestConfiguration.OpenAI.ApiKey;
-
-        if (openAIModelId == null || openAIApiKey == null)
+        var authOptions = new DefaultAzureCredentialOptions
         {
-            Console.WriteLine("OpenAI credentials not found. Skipping example.");
-            return;
-        }
+            ExcludeEnvironmentCredential = true,
+            ExcludeManagedIdentityCredential = true,
+            ExcludeSharedTokenCacheCredential = true,
+            ExcludeAzureCliCredential = false,
+            ExcludeVisualStudioCredential = false,
+            ExcludeVisualStudioCodeCredential = true,
+            ExcludeInteractiveBrowserCredential = true,
+        };
 
-        IKernel kernel = Kernel.Builder
+        IKernel kernel = new KernelBuilder()
             .WithLoggerFactory(ConsoleLogger.LoggerFactory)
-            .WithOpenAIChatCompletionService(
-                modelId: openAIModelId,
-                apiKey: openAIApiKey)
+            // Add Azure chat completion service using DefaultAzureCredential AAD auth
+            .WithAzureChatCompletionService(
+                TestConfiguration.AzureOpenAI.ChatDeploymentName,
+                TestConfiguration.AzureOpenAI.Endpoint,
+                new DefaultAzureCredential(authOptions))
             .Build();
 
         // Load native skill into the kernel skill collection, sharing its functions with prompt templates

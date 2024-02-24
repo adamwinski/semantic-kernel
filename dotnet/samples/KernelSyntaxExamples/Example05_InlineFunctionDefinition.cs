@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Azure.Identity;
 using Microsoft.SemanticKernel;
 using RepoUtils;
 
@@ -12,26 +13,24 @@ public static class Example05_InlineFunctionDefinition
     {
         Console.WriteLine("======== Inline Function Definition ========");
 
-        string openAIModelId = TestConfiguration.OpenAI.ChatModelId;
-        string openAIApiKey = TestConfiguration.OpenAI.ApiKey;
-
-        if (openAIModelId == null || openAIApiKey == null)
+        var authOptions = new DefaultAzureCredentialOptions
         {
-            Console.WriteLine("OpenAI credentials not found. Skipping example.");
-            return;
-        }
-
-        /*
-         * Example: normally you would place prompt templates in a folder to separate
-         *          C# code from natural language code, but you can also define a semantic
-         *          function inline if you like.
-         */
+            ExcludeEnvironmentCredential = true,
+            ExcludeManagedIdentityCredential = true,
+            ExcludeSharedTokenCacheCredential = true,
+            ExcludeAzureCliCredential = false,
+            ExcludeVisualStudioCredential = false,
+            ExcludeVisualStudioCodeCredential = true,
+            ExcludeInteractiveBrowserCredential = true,
+        };
 
         IKernel kernel = new KernelBuilder()
             .WithLoggerFactory(ConsoleLogger.LoggerFactory)
-            .WithOpenAIChatCompletionService(
-                modelId: openAIModelId,
-                apiKey: openAIApiKey)
+            // Add Azure chat completion service using DefaultAzureCredential AAD auth
+            .WithAzureChatCompletionService(
+                TestConfiguration.AzureOpenAI.ChatDeploymentName,
+                TestConfiguration.AzureOpenAI.Endpoint,
+                new DefaultAzureCredential(authOptions))
             .Build();
 
         // Function defined using few-shot design pattern

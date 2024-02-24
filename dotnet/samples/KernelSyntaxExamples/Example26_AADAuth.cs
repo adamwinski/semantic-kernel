@@ -30,11 +30,11 @@ public static class Example26_AADAuth
         // Optional: choose which authentication to support
         var authOptions = new DefaultAzureCredentialOptions
         {
-            ExcludeEnvironmentCredential = false,
-            ExcludeManagedIdentityCredential = false,
-            ExcludeSharedTokenCacheCredential = false,
-            ExcludeAzureCliCredential = true,
-            ExcludeVisualStudioCredential = true,
+            ExcludeEnvironmentCredential = true,
+            ExcludeManagedIdentityCredential = true,
+            ExcludeSharedTokenCacheCredential = true,
+            ExcludeAzureCliCredential = false,
+            ExcludeVisualStudioCredential = false,
             ExcludeVisualStudioCodeCredential = true,
             ExcludeInteractiveBrowserCredential = true,
         };
@@ -44,7 +44,7 @@ public static class Example26_AADAuth
             // Add Azure chat completion service using DefaultAzureCredential AAD auth
             .WithAzureChatCompletionService(
                 TestConfiguration.AzureOpenAI.ChatDeploymentName,
-                "https://....openai.azure.com/",
+                "https://eastus-shared-prd-cs.openai.azure.com",
                 new DefaultAzureCredential(authOptions))
             .Build();
 

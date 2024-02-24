@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
+using KernelSyntaxExamples;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SkillDefinition;
@@ -18,11 +19,7 @@ public static class Example09_FunctionTypes
 
         var fakeContext = new SKContext(loggerFactory: ConsoleLogger.LoggerFactory);
 
-        var kernel = Kernel.Builder
-            .WithLoggerFactory(ConsoleLogger.LoggerFactory)
-            .WithOpenAIChatCompletionService(TestConfiguration.OpenAI.ChatModelId, TestConfiguration.OpenAI.ApiKey)
-            .Build();
-
+        var kernel = CredentialHelper.GetKernelBuilder();
         // Load native skill into the kernel skill collection, sharing its functions with prompt templates
         var test = kernel.ImportSkill(new LocalExampleSkill(), "test");
 
